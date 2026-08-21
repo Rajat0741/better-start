@@ -2,10 +2,7 @@ import {
 	IconBrandGithub,
 	IconDatabase,
 	IconLock,
-	IconPalette,
-	IconRoute,
 	IconSparkles,
-	IconStack2,
 } from "@tabler/icons-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
@@ -13,40 +10,22 @@ export const Route = createFileRoute("/")({ component: App });
 
 const integrations = [
 	{
+		icon: IconSparkles,
+		title: "TanStack Start",
+		desc: "Full-stack React framework — SSR, type-safe file routes, server functions.",
+		badge: "Framework",
+	},
+	{
 		icon: IconLock,
 		title: "better-auth",
 		desc: "Google OAuth + email/password baked in. Sessions via tanstackStartCookies().",
 		badge: "Auth",
 	},
 	{
-		icon: IconRoute,
-		title: "TanStack Router",
-		desc: "Type-safe file routes, loaders, beforeLoad guards. No config hell.",
-		badge: "Routing",
-	},
-	{
-		icon: IconStack2,
-		title: "TanStack Query",
-		desc: "SSR query integration, devtools, gcTime tuned. Ready for data.",
-		badge: "Data",
-	},
-	{
 		icon: IconDatabase,
 		title: "Drizzle + Neon",
 		desc: "Postgres via Neon serverless + drizzle-orm. Schema generated via CLI.",
 		badge: "DB",
-	},
-	{
-		icon: IconPalette,
-		title: "Tailwind + shadcn",
-		desc: "Base UI primitives, CVA, tailwind-merge. Dark mode included.",
-		badge: "UI",
-	},
-	{
-		icon: IconSparkles,
-		title: "Vite + Nitro",
-		desc: "Vite 8, React 19, React Compiler. Nitro preset for any host.",
-		badge: "Build",
 	},
 ];
 
@@ -62,7 +41,7 @@ function App() {
 				<h1 className="mt-6 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
 					Skip scaffolding,
 					<br />
-					<span className="bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+					<span className="bg-linear-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
 						start shipping.
 					</span>
 				</h1>
@@ -96,7 +75,7 @@ function App() {
 						pnpm dev → localhost:3000
 					</span>
 					<span className="rounded-full border px-2.5 py-1">
-						pnpm build → Nitro server
+						pnpm build → production bundle
 					</span>
 					<span className="rounded-full border px-2.5 py-1">
 						pnpm auth:generate → schema
@@ -174,11 +153,7 @@ function App() {
 							<code className="rounded bg-background px-1.5 py-0.5">
 								pnpm build
 							</code>{" "}
-							→{" "}
-							<code className="rounded bg-background px-1.5 py-0.5">
-								pnpm start
-							</code>{" "}
-							on any Nitro host. Protected{" "}
+							→ deploy to any host. Protected{" "}
 							<code className="rounded bg-background px-1.5 py-0.5">
 								/profile
 							</code>{" "}

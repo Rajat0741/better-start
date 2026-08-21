@@ -2,26 +2,20 @@
 
 **Quickstart TanStack Start projects with better-auth already wired.**
 
-Clone → set env → push. Google OAuth, email/password, protected routes, Drizzle + Neon Postgres, Tailwind + shadcn — no boilerplate.
+Clone → set env → deploy. Google OAuth, email/password, protected routes, Drizzle + Neon Postgres, Tailwind + shadcn — no boilerplate.
 
 ![TanStack Start](https://img.shields.io/badge/TanStack-Start-ff4154?style=flat) ![better-auth](https://img.shields.io/badge/better--auth-1.x-black?style=flat) ![Drizzle](https://img.shields.io/badge/Drizzle-ORM-c5f277?style=flat) ![Neon](https://img.shields.io/badge/Neon-Postgres-00e599?style=flat)
-
----
 
 ## ✨ What you get
 
 | Stack | Included |
 |-------|----------|
-| **Auth** | `better-auth` with `drizzleAdapter(db, { provider: 'pg' })`, `tanstackStartCookies()`, Google + email/password, `/api/auth/*` handler |
+| **Auth** | `better-auth` with Drizzle adapter, `tanstackStartCookies()`, Google + email/password, `/api/auth/*` handler |
 | **Routing** | TanStack Router file routes, `beforeLoad` guards, `redirect()` |
-| **Data** | TanStack Query + `react-router-ssr-query` integration, devtools |
-| **DB** | Drizzle ORM + `@neondatabase/serverless` + `pg`, schema generated via `auth:generate` |
-| **UI** | Tailwind CSS 4, `shadcn` (Base UI), `class-variance-authority`, `tw-animate-css` |
-| **Build** | Vite 8, React 19 + React Compiler, Nitro server, Biome lint/format |
-
-Landing shows integrations; `/profile` is protected and includes feedback links (not inside the card).
-
----
+| **Data** | TanStack Query + SSR query integration, devtools |
+| **DB** | Drizzle ORM + Neon serverless Postgres |
+| **UI** | Tailwind CSS 4, shadcn (Base UI), `tw-animate-css` |
+| **Build** | Vite 8, React 19 + React Compiler, Netlify SSR (`@netlify/vite-plugin-tanstack-start`), Biome |
 
 ## 🚀 Quick start
 
@@ -41,53 +35,77 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
 
-1. **Better Auth secret:**
-   ```bash
-   pnpm dlx @better-auth/cli secret
-   # paste into BETTER_AUTH_SECRET
-   ```
-2. **Google OAuth:** Create OAuth consent + credentials at [console.cloud.google.com](https://console.cloud.google.com) → set `GOOGLE_CLIENT_ID/SECRET` → add authorized redirect `http://localhost:3000/api/auth/callback/google`.
+1. **Better Auth secret:** `pnpm dlx @better-auth/cli secret`
+2. **Google OAuth:** create OAuth consent + credentials at [console.cloud.google.com](https://console.cloud.google.com) → set `GOOGLE_CLIENT_ID/SECRET` → add authorized redirect `http://localhost:3000/api/auth/callback/google`
 3. **DB schema:**
    ```bash
    pnpm auth:generate # → src/db/schema/auth-schema.ts
    pnpm db:push       # or db:generate + db:migrate
    ```
-   Schema is `user / session / account / verification` with relations — exported via `src/db/schema/index.ts` and wired in `src/db/index.ts` (`drizzle({ client, schema })`).
 
 Visit `/login` → Continue with Google → redirected to `/profile`.
 
----
-
-## 📜 Scripts (TanStack Start)
+## 📜 Scripts
 
 | Command | What it does |
 |---------|--------------|
-| `pnpm dev` | `vite dev --port 3000` |
-| `pnpm build` | `vite build` (Nitro server) |
-| `pnpm start` | `node .output/server/index.mjs` (production server) |
-| `pnpm lint` | `biome check` (lint + format check) |
-| `pnpm format` | `biome format --write` |
-| `pnpm generate-routes` | `tsr generate` |
-| `pnpm auth:generate` | `pnpm dlx @better-auth/cli generate --output src/db/schema/auth-schema.ts` |
-| `pnpm db:generate` | `drizzle-kit generate` |
-| `pnpm db:push` | `drizzle-kit push` |
-| `pnpm db:migrate` | `drizzle-kit migrate` |
-| `pnpm db:studio` | `drizzle-kit studio` |
+| `pnpm dev` | dev server on port 3000 |
+| `pnpm build` | production build (Netlify SSR bundle) |
+| `pnpm lint` / `pnpm format` | Biome lint + format |
+| `pnpm generate-routes` | regenerate `routeTree.gen.ts` |
+| `pnpm auth:generate` | regenerate auth schema from better-auth config |
+| `pnpm db:*` | Drizzle generate / push / migrate / studio |
 
-> Next.js `next dev/build/start` → TanStack Start `vite dev/build` + Nitro. `auth:generate` replaces manual schema copy.
+## 🚢 Deploy to Netlify
 
----
+`@netlify/vite-plugin-tanstack-start` is already configured in `vite.config.ts` — `pnpm build` produces the SSR functions + static assets.
 
-## 🔐 Auth — how it's wired
+**Option A — Git-based (recommended):**
 
-`src/lib/auth.ts`:
+1. Push to GitHub → [Netlify dashboard](https://app.netlify.com) → *Add new site* → import repo
+2. Build command: `pnpm run build`
+3. Set env vars in **Site configuration → Environment variables**:
+   - `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (your site URL)
+   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+4. Add the production callback in Google Cloud Console: `https://<your-site>.netlify.app/api/auth/callback/google`
+
+**Option B — CLI:**
+
+```bash
+npx netlify login
+npx netlify init    # link repo, or import via Netlify dashboard (Git-based)
+npx netlify deploy --build --prod
+```
+
+### Other hosts (Vercel, Cloudflare, Node, …)
+
+This template ships with Netlify, but the app itself is host-agnostic. To target another platform, swap the Netlify plugin in `vite.config.ts` for Nitro, which has presets for ~20 targets:
+
+```bash
+pnpm remove @netlify/vite-plugin-tanstack-start
+pnpm add nitro@npm:nitro-nightly@latest
+```
 
 ```ts
-import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { tanstackStartCookies } from 'better-auth/tanstack-start'
-import { db } from '@/db'
+// vite.config.ts
+import { nitro } from "nitro/vite";
 
+plugins: [
+  devtools(),
+  nitro(), // auto-detects the host; or force one: nitro({ preset: "vercel" })
+  tailwindcss(),
+  tanstackStart(),
+  viteReact(),
+  babel({ presets: [reactCompilerPreset()] }),
+],
+```
+
+Then `pnpm build && node .output/server/index.mjs` for Node targets, or just push — most hosts auto-detect the Nitro preset. See [Nitro deployment docs](https://v3.nitro.build/deploy).
+
+## 🔐 Auth
+
+```ts
+// src/lib/auth.ts
 export const auth = betterAuth({
   database: drizzleAdapter(db, { provider: 'pg' }),
   emailAndPassword: { enabled: true },
@@ -98,76 +116,32 @@ export const auth = betterAuth({
 })
 ```
 
-* `src/routes/api/auth/$.ts` forwards `GET/POST → auth.handler(request)`
-* `src/lib/auth-client.ts` → `createAuthClient()` (client)
-* `src/routes/login.tsx` → `authClient.signIn.social({ provider: 'google', callbackURL: '/profile' })`
-* `src/routes/profile.tsx` → `beforeLoad: getSession()` guard + `authClient.useSession()` + signOut
-
----
+- `src/routes/api/auth/$.ts` forwards `GET/POST → auth.handler(request)`
+- `src/lib/auth-client.ts` → `createAuthClient()` (client)
+- `src/routes/login.tsx` → sign-in; `src/routes/profile.tsx` → `beforeLoad` guard + session
 
 ## 🗄️ DB
 
-* `src/db/index.ts` — Neon pool + `drizzle({ client, schema })` with global singleton
-* `src/db/schema/auth-schema.ts` — generated by better-auth CLI (don't edit manually — re-run `auth:generate` after auth config changes)
-* `drizzle.config.ts` → `schema: './src/db/schema/'`, `dialect: 'postgresql'`
+- `src/db/index.ts` — Neon pool + `drizzle({ client, schema })` singleton
+- `src/db/schema/auth-schema.ts` — generated by better-auth CLI (re-run `auth:generate` after auth config changes)
+- `drizzle.config.ts` → schema at `./src/db/schema/`, dialect `postgresql`
 
----
+## 🎨 UI
 
-## 🎨 Styling & Components
-
-Tailwind via `@tailwindcss/vite` + `src/styles.css` (`@import 'tailwindcss'`, `tw-animate-css`, `shadcn/tailwind.css`). Add components:
+Tailwind via `@tailwindcss/vite` (`src/styles.css`). Add components:
 
 ```bash
-pnpm dlx shadcn@latest add button
-pnpm dlx shadcn@latest add dialog
+pnpm dlx shadcn@latest add button dialog
 ```
 
-Theme: `src/components/theme-provider.tsx` + `theme-toggle.tsx` (`@tabler/icons-react`).
-
----
+Theme switching lives in `src/components/theme-provider.tsx` + `theme-toggle.tsx`.
 
 ## 🚧 Routing
 
-File routes in `src/routes` — `__root.tsx` (shell + devtools), `index.tsx` (landing with integrations), `login.tsx`, `profile.tsx`, `api/auth/$.ts`. Add a route → new file in `src/routes`, `pnpm generate-routes` auto-regenerates `routeTree.gen.ts`.
-
----
-
-## 📦 Deploy with Nitro
-
-```bash
-pnpm build
-pnpm start # node .output/server/index.mjs
-```
-
-Nitro builds a self-contained Node server in `.output/` — push it to Render/Fly/VPS. For Vercel/Netlify/Cloudflare presets see https://v3.nitro.build/deploy.
-
----
-
-## 🧹 What's not included (by design)
-
-Removed `vite-plugin-neon-new` (claimable DB magic), `@tanstack/react-table`, `@tanstack/react-form`, `@tanstack/match-sorter-utils` — they were unused. Re-add when needed:
-
-```bash
-pnpm add @tanstack/react-table @tanstack/react-form @tanstack/match-sorter-utils
-```
-
-Kept `react-icons` (used for `FcGoogle`) and TanStack Query/devtools per template preference.
-
----
-
-## 💬 Feedback
-
-`/profile` has **Suggest improvement** / **Report bug** outside the profile card → opens:
-
-* https://github.com/Rajat0741/better-start/issues/new?labels=enhancement&template=feature_request.md
-* https://github.com/Rajat0741/better-start/issues/new?labels=bug&template=bug_report.md
-
-Templates live in `.github/ISSUE_TEMPLATE/`.
-
----
+File routes in `src/routes`. Add a route → new file → `pnpm generate-routes` regenerates `routeTree.gen.ts`.
 
 ## 📄 License
 
-MIT — use as starter for any TanStack Start + better-auth project.
+MIT
 
 *Docs: [TanStack Start](https://tanstack.com/start) · [better-auth](https://www.better-auth.com) · [Drizzle](https://orm.drizzle.team)*
