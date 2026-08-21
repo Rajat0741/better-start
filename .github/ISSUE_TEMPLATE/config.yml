@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: "💬 Discussions"
+    url: "https://github.com/Rajat0741/better-start/discussions"
+    about: "Ask questions, share ideas"
+  - name: "📚 better-auth docs"
+    url: "https://www.better-auth.com"
+    about: "Auth configuration reference"
+  - name: "📚 TanStack Start docs"
+    url: "https://tanstack.com/start"
+    about: "Start framework reference"

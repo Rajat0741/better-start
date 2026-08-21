@@ -1,265 +1,173 @@
-Welcome to your new TanStack Start app!
+# better-start
 
-# Getting Started
+**Quickstart TanStack Start projects with better-auth already wired.**
 
-To run this application:
+Clone → set env → push. Google OAuth, email/password, protected routes, Drizzle + Neon Postgres, Tailwind + shadcn — no boilerplate.
+
+![TanStack Start](https://img.shields.io/badge/TanStack-Start-ff4154?style=flat) ![better-auth](https://img.shields.io/badge/better--auth-1.x-black?style=flat) ![Drizzle](https://img.shields.io/badge/Drizzle-ORM-c5f277?style=flat) ![Neon](https://img.shields.io/badge/Neon-Postgres-00e599?style=flat)
+
+---
+
+## ✨ What you get
+
+| Stack | Included |
+|-------|----------|
+| **Auth** | `better-auth` with `drizzleAdapter(db, { provider: 'pg' })`, `tanstackStartCookies()`, Google + email/password, `/api/auth/*` handler |
+| **Routing** | TanStack Router file routes, `beforeLoad` guards, `redirect()` |
+| **Data** | TanStack Query + `react-router-ssr-query` integration, devtools |
+| **DB** | Drizzle ORM + `@neondatabase/serverless` + `pg`, schema generated via `auth:generate` |
+| **UI** | Tailwind CSS 4, `shadcn` (Base UI), `class-variance-authority`, `tw-animate-css` |
+| **Build** | Vite 8, React 19 + React Compiler, Nitro server, Biome lint/format |
+
+Landing shows integrations; `/profile` is protected and includes feedback links (not inside the card).
+
+---
+
+## 🚀 Quick start
 
 ```bash
 pnpm install
-pnpm dev
+cp .env.example .env.local # fill in below
+pnpm dev # http://localhost:3000
 ```
 
-# Building For Production
+`.env.example`:
 
-To build this application for production:
-
-```bash
-pnpm build
+```
+DATABASE_URL=
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 ```
 
-## Styling
+1. **Better Auth secret:**
+   ```bash
+   pnpm dlx @better-auth/cli secret
+   # paste into BETTER_AUTH_SECRET
+   ```
+2. **Google OAuth:** Create OAuth consent + credentials at [console.cloud.google.com](https://console.cloud.google.com) → set `GOOGLE_CLIENT_ID/SECRET` → add authorized redirect `http://localhost:3000/api/auth/callback/google`.
+3. **DB schema:**
+   ```bash
+   pnpm auth:generate # → src/db/schema/auth-schema.ts
+   pnpm db:push       # or db:generate + db:migrate
+   ```
+   Schema is `user / session / account / verification` with relations — exported via `src/db/schema/index.ts` and wired in `src/db/index.ts` (`drizzle({ client, schema })`).
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+Visit `/login` → Continue with Google → redirected to `/profile`.
 
-### Removing Tailwind CSS
+---
 
-If you prefer not to use Tailwind CSS:
+## 📜 Scripts (TanStack Start)
 
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
+| Command | What it does |
+|---------|--------------|
+| `pnpm dev` | `vite dev --port 3000` |
+| `pnpm build` | `vite build` (Nitro server) |
+| `pnpm start` | `node .output/server/index.mjs` (production server) |
+| `pnpm lint` | `biome check` (lint + format check) |
+| `pnpm format` | `biome format --write` |
+| `pnpm generate-routes` | `tsr generate` |
+| `pnpm auth:generate` | `pnpm dlx @better-auth/cli generate --output src/db/schema/auth-schema.ts` |
+| `pnpm db:generate` | `drizzle-kit generate` |
+| `pnpm db:push` | `drizzle-kit push` |
+| `pnpm db:migrate` | `drizzle-kit migrate` |
+| `pnpm db:studio` | `drizzle-kit studio` |
 
-## Linting & Formatting
+> Next.js `next dev/build/start` → TanStack Start `vite dev/build` + Nitro. `auth:generate` replaces manual schema copy.
 
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
+---
 
+## 🔐 Auth — how it's wired
 
-```bash
-pnpm lint
-pnpm format
-pnpm check
+`src/lib/auth.ts`:
+
+```ts
+import { betterAuth } from 'better-auth'
+import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { tanstackStartCookies } from 'better-auth/tanstack-start'
+import { db } from '@/db'
+
+export const auth = betterAuth({
+  database: drizzleAdapter(db, { provider: 'pg' }),
+  emailAndPassword: { enabled: true },
+  socialProviders: {
+    google: { clientId: process.env.GOOGLE_CLIENT_ID!, clientSecret: process.env.GOOGLE_CLIENT_SECRET! },
+  },
+  plugins: [tanstackStartCookies()],
+})
 ```
 
+* `src/routes/api/auth/$.ts` forwards `GET/POST → auth.handler(request)`
+* `src/lib/auth-client.ts` → `createAuthClient()` (client)
+* `src/routes/login.tsx` → `authClient.signIn.social({ provider: 'google', callbackURL: '/profile' })`
+* `src/routes/profile.tsx` → `beforeLoad: getSession()` guard + `authClient.useSession()` + signOut
 
-## Deploy with Nitro
+---
 
-This project uses Nitro as a generic server adapter, so it can run on any Node-compatible host.
+## 🗄️ DB
 
-```bash
-npm run build
-node dist/server/index.mjs
-```
+* `src/db/index.ts` — Neon pool + `drizzle({ client, schema })` with global singleton
+* `src/db/schema/auth-schema.ts` — generated by better-auth CLI (don't edit manually — re-run `auth:generate` after auth config changes)
+* `drizzle.config.ts` → `schema: './src/db/schema/'`, `dialect: 'postgresql'`
 
-The build output is a self-contained Node server. To deploy, push the `dist/` directory to your host (Render, Fly.io, your own VPS, etc.) and run the server command above.
+---
 
-For host-specific presets (Vercel, Netlify, Cloudflare, AWS Lambda, etc.) and tuning, see https://v3.nitro.build/deploy.
+## 🎨 Styling & Components
 
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+Tailwind via `@tailwindcss/vite` + `src/styles.css` (`@import 'tailwindcss'`, `tw-animate-css`, `shadcn/tailwind.css`). Add components:
 
 ```bash
 pnpm dlx shadcn@latest add button
+pnpm dlx shadcn@latest add dialog
 ```
 
+Theme: `src/components/theme-provider.tsx` + `theme-toggle.tsx` (`@tabler/icons-react`).
 
-## Setting up Better Auth
+---
 
-1. Generate and set the `BETTER_AUTH_SECRET` environment variable in your `.env.local`:
+## 🚧 Routing
 
-   ```bash
-   pnpm dlx @better-auth/cli secret
-   ```
+File routes in `src/routes` — `__root.tsx` (shell + devtools), `index.tsx` (landing with integrations), `login.tsx`, `profile.tsx`, `api/auth/$.ts`. Add a route → new file in `src/routes`, `pnpm generate-routes` auto-regenerates `routeTree.gen.ts`.
 
-2. Visit the [Better Auth documentation](https://www.better-auth.com) to unlock the full potential of authentication in your app.
+---
 
-### Adding a Database (Optional)
-
-Better Auth can work in stateless mode, but to persist user data, add a database:
-
-```typescript
-// src/lib/auth.ts
-import { betterAuth } from "better-auth";
-import { Pool } from "pg";
-
-export const auth = betterAuth({
-  database: new Pool({
-    connectionString: process.env.DATABASE_URL,
-  }),
-  // ... rest of config
-});
-```
-
-Then run migrations:
+## 📦 Deploy with Nitro
 
 ```bash
-pnpm dlx @better-auth/cli migrate
+pnpm build
+pnpm start # node .output/server/index.mjs
 ```
 
+Nitro builds a self-contained Node server in `.output/` — push it to Render/Fly/VPS. For Vercel/Netlify/Cloudflare presets see https://v3.nitro.build/deploy.
 
-## Setting up Neon
+---
 
-When running the `dev` command, `vite-plugin-neon-new` will identify there is not a database setup. It will then create and seed a claimable database.
+## 🧹 What's not included (by design)
 
-It is the same process as [Neon Launchpad](https://neon.new).
+Removed `vite-plugin-neon-new` (claimable DB magic), `@tanstack/react-table`, `@tanstack/react-form`, `@tanstack/match-sorter-utils` — they were unused. Re-add when needed:
 
-> [!IMPORTANT]  
-> Claimable databases expire in 72 hours.
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
+```bash
+pnpm add @tanstack/react-table @tanstack/react-form @tanstack/match-sorter-utils
 ```
 
-Then anywhere in your JSX you can use it like so:
+Kept `react-icons` (used for `FcGoogle`) and TanStack Query/devtools per template preference.
 
-```tsx
-<Link to="/about">About</Link>
-```
+---
 
-This will create a link that will navigate to the `/about` route.
+## 💬 Feedback
 
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
+`/profile` has **Suggest improvement** / **Report bug** outside the profile card → opens:
 
-### Using A Layout
+* https://github.com/Rajat0741/better-start/issues/new?labels=enhancement&template=feature_request.md
+* https://github.com/Rajat0741/better-start/issues/new?labels=bug&template=bug_report.md
 
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
+Templates live in `.github/ISSUE_TEMPLATE/`.
 
-Here is an example layout that includes a header:
+---
 
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+## 📄 License
 
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
+MIT — use as starter for any TanStack Start + better-auth project.
 
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+*Docs: [TanStack Start](https://tanstack.com/start) · [better-auth](https://www.better-auth.com) · [Drizzle](https://orm.drizzle.team)*

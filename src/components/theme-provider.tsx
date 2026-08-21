@@ -1,38 +1,38 @@
-import { ScriptOnce } from "@tanstack/react-router"
-import { createContext, useContext, useEffect, useState } from "react"
+import { ScriptOnce } from "@tanstack/react-router";
+import { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "dark" | "light"
+type Theme = "dark" | "light";
 
 type ThemeProviderProps = {
-	children: React.ReactNode
-	defaultTheme?: Theme
-	storageKey?: string
-}
+	children: React.ReactNode;
+	defaultTheme?: Theme;
+	storageKey?: string;
+};
 
 type ThemeProviderState = {
-	theme: Theme
-	setTheme: (theme: Theme) => void
-	toggleTheme: () => boolean
-}
+	theme: Theme;
+	setTheme: (theme: Theme) => void;
+	toggleTheme: () => boolean;
+};
 
 function getThemeScript(storageKey: string, defaultTheme: Theme) {
-	const key = JSON.stringify(storageKey)
-	const fallback = JSON.stringify(defaultTheme)
+	const key = JSON.stringify(storageKey);
+	const fallback = JSON.stringify(defaultTheme);
 
-	return `(function(){try{var t=localStorage.getItem(${key});if(t!=='light'&&t!=='dark'){t=${fallback}}var e=document.documentElement;e.classList.add(t);e.style.colorScheme=t}catch(e){}})();`
+	return `(function(){try{var t=localStorage.getItem(${key});if(t!=='light'&&t!=='dark'){t=${fallback}}var e=document.documentElement;e.classList.add(t);e.style.colorScheme=t}catch(e){}})();`;
 }
 
 const ThemeProviderContext = createContext<ThemeProviderState>({
 	theme: "light",
 	setTheme: () => {},
 	toggleTheme: () => false,
-})
+});
 
 function applyTheme(theme: Theme) {
-	const root = document.documentElement
-	root.classList.remove("light", "dark")
-	root.classList.add(theme)
-	root.style.colorScheme = theme
+	const root = document.documentElement;
+	root.classList.remove("light", "dark");
+	root.classList.add(theme);
+	root.style.colorScheme = theme;
 }
 
 export function ThemeProvider({
@@ -40,50 +40,50 @@ export function ThemeProvider({
 	defaultTheme = "light",
 	storageKey = "theme",
 }: ThemeProviderProps) {
-	const [theme, setThemeState] = useState<Theme>(defaultTheme)
-	const [mounted, setMounted] = useState(false)
+	const [theme, setThemeState] = useState<Theme>(defaultTheme);
+	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
-		const stored = localStorage.getItem(storageKey)
+		const stored = localStorage.getItem(storageKey);
 		setThemeState(
 			stored === "light" || stored === "dark" ? stored : defaultTheme,
-		)
-		setMounted(true)
-	}, [defaultTheme, storageKey])
+		);
+		setMounted(true);
+	}, [defaultTheme, storageKey]);
 
 	useEffect(() => {
-		if (!mounted) return
-		applyTheme(theme)
-	}, [theme, mounted])
+		if (!mounted) return;
+		applyTheme(theme);
+	}, [theme, mounted]);
 
 	const setTheme = (next: Theme) => {
-		localStorage.setItem(storageKey, next)
-		setThemeState(next)
-	}
+		localStorage.setItem(storageKey, next);
+		setThemeState(next);
+	};
 
 	const toggleTheme = (): boolean => {
-		const next: Theme = theme === "light" ? "dark" : "light"
-		localStorage.setItem(storageKey, next)
-		setThemeState(next)
-		return next === "dark"
-	}
+		const next: Theme = theme === "light" ? "dark" : "light";
+		localStorage.setItem(storageKey, next);
+		setThemeState(next);
+		return next === "dark";
+	};
 
 	return (
 		<ThemeProviderContext value={{ theme, setTheme, toggleTheme }}>
 			<ScriptOnce>{getThemeScript(storageKey, defaultTheme)}</ScriptOnce>
 			{children}
 		</ThemeProviderContext>
-	)
+	);
 }
 
 export function useTheme() {
-	const context = useContext(ThemeProviderContext)
+	const context = useContext(ThemeProviderContext);
 	if (context === undefined)
-		throw new Error("useTheme must be used within a ThemeProvider")
-	return context
+		throw new Error("useTheme must be used within a ThemeProvider");
+	return context;
 }
 
 export function useToggleTheme(): () => boolean {
-	const { toggleTheme } = useTheme()
-	return toggleTheme
+	const { toggleTheme } = useTheme();
+	return toggleTheme;
 }
