@@ -6,8 +6,7 @@ import {
 	Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { ThemeToggle } from "#/components/theme-toggle";
-import { ThemeProvider } from "@/components/theme-provider";
+import { Providers } from "@/providers";
 import TanStackQueryDevtools from "../lib/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
@@ -46,12 +45,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<ThemeProvider defaultTheme="dark" storageKey="theme">
-					<div className="fixed top-6 right-6 z-50">
-						<ThemeToggle />
-					</div>
-					{children}
-				</ThemeProvider>
+				<Providers>{children}</Providers>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

@@ -4,6 +4,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client";
@@ -16,17 +17,27 @@ const getSession = createServerFn({ method: "GET" }).handler(async () => {
 	return session;
 });
 
+const loginSearchSchema = z.object({
+	redirect: z
+		.string()
+		.regex(/^\/(?!\/)/)
+		.optional()
+		.catch(undefined),
+});
+
 export const Route = createFileRoute("/login")({
-	beforeLoad: async () => {
+	validateSearch: loginSearchSchema,
+	beforeLoad: async ({ search }) => {
 		const session = await getSession();
 		if (session) {
-			throw redirect({ to: "/profile" });
+			throw redirect({ to: search.redirect ?? "/profile" });
 		}
 	},
 	component: LoginPage,
 });
 
 function LoginPage() {
+	const search = Route.useSearch();
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +47,7 @@ function LoginPage() {
 		try {
 			await authClient.signIn.social({
 				provider: "google",
-				callbackURL: "/profile",
+				callbackURL: search.redirect ?? "/profile",
 			});
 		} catch (err) {
 			setError(

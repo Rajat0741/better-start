@@ -1,33 +1,17 @@
 import { IconBug, IconBulb } from "@tabler/icons-react";
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useConfirm } from "@/providers/confirm-dialog-provider";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client";
 
-const getSession = createServerFn({ method: "GET" }).handler(async () => {
-	const request = getRequest();
-	const session = await auth.api.getSession({
-		headers: request.headers,
-	});
-	return session;
-});
-
-export const Route = createFileRoute("/profile")({
-	beforeLoad: async () => {
-		const session = await getSession();
-		if (!session) {
-			throw redirect({ to: "/login" });
-		}
-		return { session };
-	},
+export const Route = createFileRoute("/_authenticated/profile")({
 	component: ProfilePage,
 });
 
 function ProfilePage() {
 	const router = useRouter();
 	const { data: session, isPending, error } = authClient.useSession();
+	const confirm = useConfirm();
 
 	if (isPending) {
 		return (
@@ -55,15 +39,21 @@ function ProfilePage() {
 
 	const user = session.user;
 
-	const handleSignOut = async () => {
-		await authClient.signOut({
-			fetchOptions: {
-				onSuccess: () => {
-					router.navigate({ to: "/login" });
-				},
+	const handleSignOut = () =>
+		confirm({
+			title: "Sign out",
+			description: "Are you sure you want to sign out? You will need to sign in again to access your account.",
+			confirmLabel: "Sign out",
+			onConfirm: async () => {
+				await authClient.signOut({
+					fetchOptions: {
+						onSuccess: () => {
+							router.navigate({ to: "/login" });
+						},
+					},
+				});
 			},
 		});
-	};
 
 	return (
 		<main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
@@ -102,7 +92,7 @@ function ProfilePage() {
 							variant="outline"
 							size="lg"
 							className="w-full"
-							onClick={handleSignOut}
+							onClick={() => handleSignOut()}
 						>
 							Sign out
 						</Button>
@@ -135,10 +125,7 @@ function ProfilePage() {
 					</div>
 
 					<div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-						<Button
-							variant="outline"
-							size="default"
-						>
+						<Button variant="outline" size="default">
 							<a
 								href="https://github.com/Rajat0741/better-start/issues/new?labels=enhancement&title=%F0%9F%92%A1+%5BIdea%5D+&template=feature_request.md"
 								target="_blank"
@@ -149,11 +136,7 @@ function ProfilePage() {
 								Suggest improvement
 							</a>
 						</Button>
-						<Button
-							variant="outline"
-							size="default"
-							className="flex flex-row"
-						>
+						<Button variant="outline" size="default" className="flex flex-row">
 							<a
 								href="https://github.com/Rajat0741/better-start/issues/new?labels=bug&title=%F0%9F%90%9B+%5BBug%5D+&template=bug_report.md"
 								target="_blank"
