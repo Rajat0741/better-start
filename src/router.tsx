@@ -1,6 +1,9 @@
 import { createRouter as createTanStackRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
-import { ErrorComponent, NotFoundComponent } from "./components/custom/route-errors";
+import {
+	ErrorComponent,
+	NotFoundComponent,
+} from "./components/custom/route-errors";
 import { getContext } from "./lib/tanstack-query/root-provider";
 import { routeTree } from "./routeTree.gen";
 

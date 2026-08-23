@@ -1,21 +1,12 @@
 import { IconArrowLeft } from "@tabler/icons-react";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth";
+import { LoginSkeleton } from "@/features/auth/components/login-skeleton";
 import { authClient } from "@/lib/auth-client";
-
-const getSession = createServerFn({ method: "GET" }).handler(async () => {
-	const request = getRequest();
-	const session = await auth.api.getSession({
-		headers: request.headers,
-	});
-	return session;
-});
+import { getUserSessionFn } from "@/lib/getUser";
 
 const loginSearchSchema = z.object({
 	redirect: z
@@ -27,8 +18,9 @@ const loginSearchSchema = z.object({
 
 export const Route = createFileRoute("/login")({
 	validateSearch: loginSearchSchema,
+	pendingComponent: LoginSkeleton,
 	beforeLoad: async ({ search }) => {
-		const session = await getSession();
+		const session = await getUserSessionFn();
 		if (session) {
 			throw redirect({ to: search.redirect ?? "/profile" });
 		}

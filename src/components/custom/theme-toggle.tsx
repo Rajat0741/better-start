@@ -1,6 +1,6 @@
 import { IconCircleHalf2 } from "@tabler/icons-react";
-import { useToggleTheme } from "@/providers/theme-provider";
 import { Button } from "@/components/ui/button";
+import { useToggleTheme } from "@/providers/theme-provider";
 
 export function ThemeToggle() {
 	const toggleTheme = useToggleTheme();

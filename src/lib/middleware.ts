@@ -1,12 +1,11 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { getUserSession } from "@/lib/getUser";
+import { getUserSessionFn } from "@/lib/getUser";
 import { AppError } from "@/utils/app-error";
 
 export const authMiddleware = createMiddleware().server(async ({ next }) => {
-	const user = await getUserSession();
-	return next({
-		context: { user },
-	});
+	const user = await getUserSessionFn();
+	if (!user) throw new AppError("Unauthorized", 401);
+	return next({ context: { user } });
 });
 
 export const errorHandlerMiddleware = createMiddleware().server(

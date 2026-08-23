@@ -1,57 +1,31 @@
 import { IconBug, IconBulb } from "@tabler/icons-react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useConfirm } from "@/providers/confirm-dialog-provider";
 import { Button } from "@/components/ui/button";
+import { ProfileSkeleton } from "@/features/profile/components/profile-skeleton";
 import { authClient } from "@/lib/auth-client";
+import { useConfirm } from "@/providers/confirm-dialog-provider";
 
 export const Route = createFileRoute("/_authenticated/profile")({
+	pendingComponent: ProfileSkeleton,
 	component: ProfilePage,
 });
 
 function ProfilePage() {
 	const router = useRouter();
-	const { data: session, isPending, error } = authClient.useSession();
+	const { session } = Route.useRouteContext();
 	const confirm = useConfirm();
-
-	if (isPending) {
-		return (
-			<main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
-				<p className="text-sm text-muted-foreground">Loading...</p>
-			</main>
-		);
-	}
-
-	if (error) {
-		return (
-			<main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
-				<p className="text-sm text-destructive">Failed to load session</p>
-			</main>
-		);
-	}
-
-	if (!session) {
-		return (
-			<main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4">
-				<p className="text-sm text-muted-foreground">Redirecting to login...</p>
-			</main>
-		);
-	}
 
 	const user = session.user;
 
 	const handleSignOut = () =>
 		confirm({
 			title: "Sign out",
-			description: "Are you sure you want to sign out? You will need to sign in again to access your account.",
+			description:
+				"Are you sure you want to sign out? You will need to sign in again to access your account.",
 			confirmLabel: "Sign out",
 			onConfirm: async () => {
-				await authClient.signOut({
-					fetchOptions: {
-						onSuccess: () => {
-							router.navigate({ to: "/login" });
-						},
-					},
-				});
+				await authClient.signOut();
+				router.navigate({ to: "/login", replace: true });
 			},
 		});
 

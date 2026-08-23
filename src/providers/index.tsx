@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/custom/theme-toggle";
 import { ConfirmDialogProvider } from "@/providers/confirm-dialog-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
-import { ThemeToggle } from "@/components/custom/theme-toggle";
 
 export function Providers({ children }: { children: ReactNode }) {
 	return (

@@ -1,15 +1,13 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
-import { auth } from "@/lib/auth";
-
-const getSession = createServerFn({ method: "GET" }).handler(async () => {
-	return auth.api.getSession({ headers: getRequest().headers });
-});
+import { AuthenticatedPending } from "@/features/profile/components/profile-skeleton";
+import { getUserSessionFn } from "@/lib/getUser";
 
 export const Route = createFileRoute("/_authenticated")({
+	pendingComponent: AuthenticatedPending,
+	pendingMs: 0,
+	pendingMinMs: 200,
 	beforeLoad: async ({ location }) => {
-		const session = await getSession();
+		const session = await getUserSessionFn();
 		if (!session) {
 			throw redirect({
 				to: "/login",
