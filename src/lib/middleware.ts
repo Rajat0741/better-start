@@ -1,14 +1,24 @@
-import { createMiddleware } from "@tanstack/react-start";
-import { getUserSessionFn } from "@/lib/getUser";
+import { createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
+import { auth } from "@/lib/auth";
 import { AppError } from "@/utils/app-error";
 
-export const authMiddleware = createMiddleware().server(async ({ next }) => {
-	const user = await getUserSessionFn();
-	if (!user) throw new AppError("Unauthorized", 401);
-	return next({ context: { user } });
+export const csrfMiddleware = createCsrfMiddleware({
+	filter: (ctx) => ctx.handlerType === "serverFn",
 });
 
-export const errorHandlerMiddleware = createMiddleware().server(
+export const authMiddleware = createMiddleware<"function">().server(
+	async ({ next }) => {
+		const data = await auth.api.getSession({
+			headers: getRequest().headers,
+		});
+		const user = data?.user;
+		if (!user) throw new AppError("Unauthorized", 401);
+		return next({ context: { user } });
+	},
+);
+
+export const errorHandlerMiddleware = createMiddleware<"function">().server(
 	async ({ next }) => {
 		try {
 			return await next();
