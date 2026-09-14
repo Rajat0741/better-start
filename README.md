@@ -15,7 +15,7 @@ Clone → set env → deploy. Google OAuth, email/password, protected routes, Dr
 | **Data** | TanStack Query + SSR query integration, devtools |
 | **DB** | Drizzle ORM + Neon serverless Postgres |
 | **UI** | Tailwind CSS 4, shadcn (Base UI), `tw-animate-css` |
-| **Build** | Vite 8, React 19 + React Compiler, Netlify SSR (`@netlify/vite-plugin-tanstack-start`), Biome |
+| **Build** | Vite 8, React 19 + React Compiler, Biome |
 
 ## 🚀 Quick start
 
@@ -35,8 +35,8 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
 
-1. **Better Auth secret:** `pnpm dlx @better-auth/cli secret`
-2. **Google OAuth:** create OAuth consent + credentials at [console.cloud.google.com](https://console.cloud.google.com) → set `GOOGLE_CLIENT_ID/SECRET` → add authorized redirect `http://localhost:3000/api/auth/callback/google`
+1. **Better Auth secret:** generate at [better-auth docs](https://better-auth.com/docs/installation#set-environment-variables) via `pnpm dlx @better-auth/cli secret` → paste into `BETTER_AUTH_SECRET`. Set `BETTER_AUTH_URL` to your base URL (`http://localhost:3000` locally, production URL when deploying).
+2. **Google OAuth:** create credentials at [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) → set `GOOGLE_CLIENT_ID/SECRET` → Authorized JavaScript origins: `http://localhost:3000`, Authorized redirect URIs: `http://localhost:3000/api/auth/callback/google` (replace with production URL when deploying in both)
 3. **DB schema:**
    ```bash
    pnpm auth:generate # → src/db/schema/auth-schema.ts
@@ -50,57 +50,18 @@ Visit `/login` → Continue with Google → redirected to `/profile`.
 | Command | What it does |
 |---------|--------------|
 | `pnpm dev` | dev server on port 3000 |
-| `pnpm build` | production build (Netlify SSR bundle) |
+| `pnpm build` | production build |
 | `pnpm lint` / `pnpm format` | Biome lint + format |
 | `pnpm generate-routes` | regenerate `routeTree.gen.ts` |
 | `pnpm auth:generate` | regenerate auth schema from better-auth config |
 | `pnpm db:*` | Drizzle generate / push / migrate / studio |
 
-## 🚢 Deploy to Netlify
+## 🚢 Deploy
 
-`@netlify/vite-plugin-tanstack-start` is already configured in `vite.config.ts` — `pnpm build` produces the SSR functions + static assets.
+`pnpm build` produces the server bundle + static assets. On your host:
 
-**Option A — Git-based (recommended):**
-
-1. Push to GitHub → [Netlify dashboard](https://app.netlify.com) → *Add new site* → import repo
-2. Build command: `pnpm run build`
-3. Set env vars in **Site configuration → Environment variables**:
-   - `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (your site URL)
-   - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-4. Add the production callback in Google Cloud Console: `https://<your-site>.netlify.app/api/auth/callback/google`
-
-**Option B — CLI:**
-
-```bash
-npx netlify login
-npx netlify init    # link repo, or import via Netlify dashboard (Git-based)
-npx netlify deploy --build --prod
-```
-
-### Other hosts (Vercel, Cloudflare, Node, …)
-
-This template ships with Netlify, but the app itself is host-agnostic. To target another platform, swap the Netlify plugin in `vite.config.ts` for Nitro, which has presets for ~20 targets:
-
-```bash
-pnpm remove @netlify/vite-plugin-tanstack-start
-pnpm add nitro@npm:nitro-nightly@latest
-```
-
-```ts
-// vite.config.ts
-import { nitro } from "nitro/vite";
-
-plugins: [
-  devtools(),
-  nitro(), // auto-detects the host; or force one: nitro({ preset: "vercel" })
-  tailwindcss(),
-  tanstackStart(),
-  viteReact(),
-  babel({ presets: [reactCompilerPreset()] }),
-],
-```
-
-Then `pnpm build && node .output/server/index.mjs` for Node targets, or just push — most hosts auto-detect the Nitro preset. See [Nitro deployment docs](https://v3.nitro.build/deploy).
+1. Set env vars: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (your site URL), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+2. Add the production callback in Google Cloud Console: `https://<your-site>/api/auth/callback/google`
 
 ## 🔐 Auth
 

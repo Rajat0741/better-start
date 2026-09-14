@@ -1,4 +1,3 @@
-import netlify from "@netlify/vite-plugin-tanstack-start";
 import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
@@ -10,7 +9,6 @@ const config = defineConfig({
 	resolve: { tsconfigPaths: true },
 	plugins: [
 		devtools(),
-		netlify(),
 		tailwindcss(),
 		tanstackStart(),
 		viteReact(),
