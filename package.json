@@ -1,19 +1,22 @@
 {
   "name": "better-start",
   "private": true,
-  "type": "module",
   "license": "MIT",
+  "type": "module",
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "build": "vite build",
-    "lint": "biome check",
-    "format": "biome format --write",
+    "dev": "vp dev --port 3000",
+    "build": "vp build",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:pull": "drizzle-kit pull",
     "db:studio": "drizzle-kit studio",
-    "auth:generate": "pnpm dlx auth@latest generate --output src/db/schema/auth-schema.ts"
+    "auth:generate": "pnpm dlx auth@latest generate --output src/db/schema/auth-schema.ts",
+    "prepare": "vp config"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -21,11 +24,8 @@
     "@neondatabase/serverless": "^1.0.2",
     "@tabler/icons-react": "^3.46.0",
     "@tailwindcss/vite": "^4.1.18",
-    "@tanstack/react-devtools": "latest",
     "@tanstack/react-query": "latest",
-    "@tanstack/react-query-devtools": "latest",
     "@tanstack/react-router": "latest",
-    "@tanstack/react-router-devtools": "latest",
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
     "better-auth": "^1.7.4",
@@ -44,9 +44,11 @@
     "zod": "^4.6.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.5",
     "@rolldown/plugin-babel": "^0.2.4",
     "@tanstack/devtools-vite": "latest",
+    "@tanstack/react-devtools": "latest",
+    "@tanstack/react-query-devtools": "latest",
+    "@tanstack/react-router-devtools": "latest",
     "@tanstack/router-cli": "^1.167.35",
     "@types/node": "^22.20.2",
     "@types/pg": "^8.23.1",
@@ -56,8 +58,18 @@
     "@vitejs/plugin-react": "^6.1.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "dotenv": "^17.3.1",
+    "oxfmt": "^0.71.0",
+    "oxlint": "^1.86.0",
     "tsx": "^4.23.13",
     "typescript": "^6.0.2",
-    "vite": "^8.3.0"
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.8.1",
+      "onFail": "download"
+    }
   }
 }

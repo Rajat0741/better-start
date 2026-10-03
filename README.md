@@ -8,14 +8,14 @@ Clone → set env → deploy. Google OAuth, email/password, protected routes, Dr
 
 ## ✨ What you get
 
-| Stack | Included |
-|-------|----------|
-| **Auth** | `better-auth` with Drizzle adapter, `tanstackStartCookies()`, Google + email/password, `/api/auth/*` handler |
-| **Routing** | TanStack Router file routes, `beforeLoad` guards, `redirect()` |
-| **Data** | TanStack Query + SSR query integration, devtools |
-| **DB** | Drizzle ORM + Neon serverless Postgres |
-| **UI** | Tailwind CSS 4, shadcn (Base UI), `tw-animate-css` |
-| **Build** | Vite 8, React 19 + React Compiler, Biome |
+| Stack       | Included                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------ |
+| **Auth**    | `better-auth` with Drizzle adapter, `tanstackStartCookies()`, Google + email/password, `/api/auth/*` handler |
+| **Routing** | TanStack Router file routes, `beforeLoad` guards, `redirect()`                                               |
+| **Data**    | TanStack Query + SSR query integration, devtools                                                             |
+| **DB**      | Drizzle ORM + Neon serverless Postgres                                                                       |
+| **UI**      | Tailwind CSS 4, shadcn (Base UI), `tw-animate-css`                                                           |
+| **Build**   | Vite 8, React 19 + React Compiler, Oxlint + Oxfmt                                                            |
 
 ## 🚀 Quick start
 
@@ -47,14 +47,14 @@ Visit `/login` → Continue with Google → redirected to `/profile`.
 
 ## 📜 Scripts
 
-| Command | What it does |
-|---------|--------------|
-| `pnpm dev` | dev server on port 3000 |
-| `pnpm build` | production build |
-| `pnpm lint` / `pnpm format` | Biome lint + format |
-| `pnpm generate-routes` | regenerate `routeTree.gen.ts` |
-| `pnpm auth:generate` | regenerate auth schema from better-auth config |
-| `pnpm db:*` | Drizzle generate / push / migrate / studio |
+|| Command | What it does |
+|| --------------------------- | ---------------------------------------------- |
+|| `pnpm dev` | dev server on port 3000 |
+|| `pnpm build` | production build |
+|| `pnpm lint` / `pnpm format` | oxlint + oxfmt (linting and formatting) |
+|| `pnpm generate-routes` | regenerate `routeTree.gen.ts` |
+|| `pnpm auth:generate` | regenerate auth schema from better-auth config |
+|| `pnpm db:*` | Drizzle generate / push / migrate / studio |
 
 ## 🚢 Deploy
 
@@ -68,13 +68,16 @@ Visit `/login` → Continue with Google → redirected to `/profile`.
 ```ts
 // src/lib/auth.ts
 export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: 'pg' }),
+  database: drizzleAdapter(db, { provider: "pg" }),
   emailAndPassword: { enabled: true },
   socialProviders: {
-    google: { clientId: process.env.GOOGLE_CLIENT_ID!, clientSecret: process.env.GOOGLE_CLIENT_SECRET! },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
   },
   plugins: [tanstackStartCookies()],
-})
+});
 ```
 
 - `src/routes/api/auth/$.ts` forwards `GET/POST → auth.handler(request)`
@@ -105,4 +108,4 @@ File routes in `src/routes`. Add a route → new file → `pnpm generate-routes`
 
 MIT
 
-*Docs: [TanStack Start](https://tanstack.com/start) · [better-auth](https://www.better-auth.com) · [Drizzle](https://orm.drizzle.team)*
+_Docs: [TanStack Start](https://tanstack.com/start) · [better-auth](https://www.better-auth.com) · [Drizzle](https://orm.drizzle.team)_
