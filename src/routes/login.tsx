@@ -53,15 +53,15 @@ function LoginPage() {
       <div className="w-full max-w-sm">
         <Link
           to="/"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+          className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition"
         >
           <IconArrowLeft className="size-4" />
           Back to home
         </Link>
-        <div className="rounded-2xl border bg-card p-8 shadow-sm">
+        <div className="bg-card rounded-2xl border p-8 shadow-sm">
           <div className="mb-8 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="text-muted-foreground mt-2 text-sm">
               Sign in to your account to continue
             </p>
           </div>
@@ -77,9 +77,9 @@ function LoginPage() {
             {loading ? "Redirecting..." : "Continue with Google"}
           </Button>
 
-          {error && <p className="mt-4 text-center text-sm text-destructive">{error}</p>}
+          {error && <p className="text-destructive mt-4 text-center text-sm">{error}</p>}
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
+          <p className="text-muted-foreground mt-6 text-center text-xs">
             By continuing, you agree to our Terms and Privacy Policy.
           </p>
         </div>

@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "useTabs": true,
-  "singleQuote": false,
   "sortImports": true,
-  "ignorePatterns": ["**/src/routeTree.gen.ts", "**/src/styles.css"]
+  "sortTailwindcss": true,
+  "ignorePatterns": ["**/src/routeTree.gen.ts", "**/src/styles.css", "dist", "pnpm-lock.yaml"]
 }

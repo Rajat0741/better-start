@@ -15,13 +15,13 @@ function RouteError({ code, title, description }: RouteErrorProps) {
       <div className="flex flex-col items-center gap-2">
         <span
           aria-hidden
-          className="bg-linear-to-b from-foreground/70 to-foreground/5 bg-clip-text font-mono text-7xl font-bold tracking-tight text-transparent select-none sm:text-8xl"
+          className="from-foreground/70 to-foreground/5 bg-linear-to-b bg-clip-text font-mono text-7xl font-bold tracking-tight text-transparent select-none sm:text-8xl"
         >
           {code}
         </span>
         <h1 className="text-lg font-semibold tracking-tight">{title}</h1>
         {description && (
-          <p className="max-w-sm text-balance text-sm text-muted-foreground">{description}</p>
+          <p className="text-muted-foreground max-w-sm text-sm text-balance">{description}</p>
         )}
       </div>
       <Button variant="outline" size="lg" render={<Link to="/" />}>

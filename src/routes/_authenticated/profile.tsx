@@ -34,7 +34,7 @@ function ProfilePage() {
     <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-md space-y-6">
         {/* Profile card */}
-        <div className="rounded-2xl border bg-card p-8 shadow-sm">
+        <div className="bg-card rounded-2xl border p-8 shadow-sm">
           <div className="flex flex-col items-center text-center">
             {user.image ? (
               <img
@@ -44,15 +44,15 @@ function ProfilePage() {
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="flex size-20 items-center justify-center rounded-full bg-muted text-xl font-semibold text-muted-foreground">
+              <div className="bg-muted text-muted-foreground flex size-20 items-center justify-center rounded-full text-xl font-semibold">
                 {(user.name ?? user.email ?? "?").charAt(0).toUpperCase()}
               </div>
             )}
-            <h1 className="mt-4 text-xl font-semibold tracking-tight text-foreground">
+            <h1 className="text-foreground mt-4 text-xl font-semibold tracking-tight">
               {user.name ?? "User"}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{user.email}</p>
-            <p className="mt-1 font-mono text-xs text-muted-foreground/70">ID: {user.id}</p>
+            <p className="text-muted-foreground mt-1 text-sm">{user.email}</p>
+            <p className="text-muted-foreground/70 mt-1 font-mono text-xs">ID: {user.id}</p>
             {user.emailVerified && (
               <span className="mt-3 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
                 Verified
@@ -76,14 +76,14 @@ function ProfilePage() {
         </div>
 
         {/* Feedback */}
-        <div className="rounded-2xl border border-dashed bg-muted/30 p-5">
+        <div className="bg-muted/30 rounded-2xl border border-dashed p-5">
           <div className="flex items-start gap-3">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-background border">
-              <IconBulb className="size-4 text-muted-foreground" />
+            <div className="bg-background flex size-8 shrink-0 items-center justify-center rounded-full border">
+              <IconBulb className="text-muted-foreground size-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="text-sm font-semibold leading-none">Help make better-start better</h2>
-              <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+              <h2 className="text-sm leading-none font-semibold">Help make better-start better</h2>
+              <p className="text-muted-foreground mt-1.5 text-xs leading-relaxed">
                 Spotted a bug or have an idea? Open an issue — it takes 30 seconds and helps
                 everyone.
               </p>
