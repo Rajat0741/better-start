@@ -36,5 +36,6 @@
   "oxc.disableNestedConfig": true,
   "oxc.fmt.disableNestedConfig": true,
   "editor.formatOnSave": true,
-  "editor.formatOnSaveMode": "file"
+  "editor.formatOnSaveMode": "file",
+  "codescene.enableTelemetry": false
 }
