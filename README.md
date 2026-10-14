@@ -63,20 +63,25 @@ Visit `/login` → Continue with Google → redirected to `/profile`.
 1. Set env vars: `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (your site URL), `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 2. Add the production callback in Google Cloud Console: `https://<your-site>/api/auth/callback/google`
 
+### Netlify
+
+This template includes the Netlify Vite adapter and `netlify.toml` for deployment.
+Switch the deployment targets according to your needs.
+
 ## 🔐 Auth
 
 ```ts
 // src/lib/auth.ts
 export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: "pg" }),
-  emailAndPassword: { enabled: true },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
-  plugins: [tanstackStartCookies()],
+	database: drizzleAdapter(db, { provider: "pg" }),
+	emailAndPassword: { enabled: true },
+	socialProviders: {
+		google: {
+			clientId: process.env.GOOGLE_CLIENT_ID!,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+		},
+	},
+	plugins: [tanstackStartCookies()],
 });
 ```
 

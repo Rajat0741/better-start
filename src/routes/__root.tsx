@@ -10,55 +10,55 @@ import TanStackQueryDevtools from "../lib/tanstack-query/devtools";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
-  queryClient: QueryClient;
+	queryClient: QueryClient;
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "TanStack Start Starter",
-      },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-    ],
-  }),
-  shellComponent: RootDocument,
+	head: () => ({
+		meta: [
+			{
+				charSet: "utf-8",
+			},
+			{
+				name: "viewport",
+				content: "width=device-width, initial-scale=1",
+			},
+			{
+				title: "TanStack Start Starter",
+			},
+		],
+		links: [
+			{
+				rel: "stylesheet",
+				href: appCss,
+			},
+		],
+	}),
+	shellComponent: RootDocument,
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <Providers>{children}</Providers>
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-            TanStackQueryDevtools,
-          ]}
-        />
-        <Scripts />
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en" suppressHydrationWarning>
+			<head>
+				<HeadContent />
+			</head>
+			<body>
+				<Providers>{children}</Providers>
+				<TanStackDevtools
+					config={{
+						position: "bottom-right",
+					}}
+					plugins={[
+						{
+							name: "Tanstack Router",
+							render: <TanStackRouterDevtoolsPanel />,
+						},
+						TanStackQueryDevtools,
+					]}
+				/>
+				<Scripts />
+			</body>
+		</html>
+	);
 }

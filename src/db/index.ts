@@ -7,18 +7,18 @@ import * as schema from "./schema";
 neonConfig.webSocketConstructor = ws;
 
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is not set");
+	throw new Error("DATABASE_URL environment variable is not set");
 }
 
 const globalForDb = globalThis as unknown as { neonPool?: Pool };
 
 if (!globalForDb.neonPool) {
-  globalForDb.neonPool = new Pool({
-    connectionString: process.env.DATABASE_URL!,
-  });
-  globalForDb.neonPool.on("error", (err: unknown) =>
-    console.error("[neon-pool] idle client error", err),
-  );
+	globalForDb.neonPool = new Pool({
+		connectionString: process.env.DATABASE_URL!,
+	});
+	globalForDb.neonPool.on("error", (err: unknown) =>
+		console.error("[neon-pool] idle client error", err),
+	);
 }
 
 export const db = drizzle({ client: globalForDb.neonPool, schema });

@@ -10,80 +10,80 @@ import { authClient } from "@/lib/auth-client";
 import { getUserSessionFn } from "@/lib/getUser";
 
 const loginSearchSchema = z.object({
-  redirect: z
-    .string()
-    .regex(/^\/(?!\/)/)
-    .optional()
-    .catch(undefined),
+	redirect: z
+		.string()
+		.regex(/^\/(?!\/)/)
+		.optional()
+		.catch(undefined),
 });
 
 export const Route = createFileRoute("/login")({
-  validateSearch: loginSearchSchema,
-  pendingComponent: LoginSkeleton,
-  beforeLoad: async ({ search }) => {
-    const session = await getUserSessionFn();
-    if (session) {
-      throw redirect({ to: search.redirect ?? "/profile" });
-    }
-  },
-  component: LoginPage,
+	validateSearch: loginSearchSchema,
+	pendingComponent: LoginSkeleton,
+	beforeLoad: async ({ search }) => {
+		const session = await getUserSessionFn();
+		if (session) {
+			throw redirect({ to: search.redirect ?? "/profile" });
+		}
+	},
+	component: LoginPage,
 });
 
 function LoginPage() {
-  const search = Route.useSearch();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const search = Route.useSearch();
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const handleGoogleSignIn = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: search.redirect ?? "/profile",
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to sign in with Google");
-      setLoading(false);
-    }
-  };
+	const handleGoogleSignIn = async () => {
+		setError(null);
+		setLoading(true);
+		try {
+			await authClient.signIn.social({
+				provider: "google",
+				callbackURL: search.redirect ?? "/profile",
+			});
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Failed to sign in with Google");
+			setLoading(false);
+		}
+	};
 
-  return (
-    <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        <Link
-          to="/"
-          className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition"
-        >
-          <IconArrowLeft className="size-4" />
-          Back to home
-        </Link>
-        <div className="bg-card rounded-2xl border p-8 shadow-sm">
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            <p className="text-muted-foreground mt-2 text-sm">
-              Sign in to your account to continue
-            </p>
-          </div>
+	return (
+		<main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
+			<div className="w-full max-w-sm">
+				<Link
+					to="/"
+					className="text-muted-foreground hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition"
+				>
+					<IconArrowLeft className="size-4" />
+					Back to home
+				</Link>
+				<div className="bg-card rounded-2xl border p-8 shadow-sm">
+					<div className="mb-8 text-center">
+						<h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
+						<p className="text-muted-foreground mt-2 text-sm">
+							Sign in to your account to continue
+						</p>
+					</div>
 
-          <Button
-            variant="outline"
-            size="lg"
-            className="w-full justify-center gap-2"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-          >
-            <FcGoogle className="size-4" />
-            {loading ? "Redirecting..." : "Continue with Google"}
-          </Button>
+					<Button
+						variant="outline"
+						size="lg"
+						className="w-full justify-center gap-2"
+						onClick={handleGoogleSignIn}
+						disabled={loading}
+					>
+						<FcGoogle className="size-4" />
+						{loading ? "Redirecting..." : "Continue with Google"}
+					</Button>
 
-          {error && <p className="text-destructive mt-4 text-center text-sm">{error}</p>}
+					{error && <p className="text-destructive mt-4 text-center text-sm">{error}</p>}
 
-          <p className="text-muted-foreground mt-6 text-center text-xs">
-            By continuing, you agree to our Terms and Privacy Policy.
-          </p>
-        </div>
-      </div>
-    </main>
-  );
+					<p className="text-muted-foreground mt-6 text-center text-xs">
+						By continuing, you agree to our Terms and Privacy Policy.
+					</p>
+				</div>
+			</div>
+		</main>
+	);
 }
