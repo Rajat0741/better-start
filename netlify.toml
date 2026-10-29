@@ -1,6 +1,6 @@
 [build]
-command = "vite build"
+command = "pnpm run build"
 publish = "dist/client"
 [dev]
-command = "vite dev"
+command = "pnpm run dev"
 port = 3000
