@@ -1,0 +1,60 @@
+{
+	"lsp": {
+		"oxfmt": {
+			"initialization_options": {
+				"settings": {
+					"fmt.configPath": null,
+					"run": "onSave"
+				}
+			}
+		},
+		"oxlint": {
+			"initialization_options": {
+				"settings": {
+					"configPath": null,
+					"run": "onType",
+					"disableNestedConfig": false,
+					"fixKind": "safe_fix",
+					"unusedDisableDirectives": "deny"
+				}
+			}
+		}
+	},
+	"languages": {
+		"TypeScript": {
+			"format_on_save": "on",
+			"formatter": [
+				{ "language_server": { "name": "oxfmt" } },
+				{ "code_action": "source.fixAll.oxc" }
+			],
+			"prettier": { "allowed": false }
+		},
+		"TSX": {
+			"format_on_save": "on",
+			"formatter": [
+				{ "language_server": { "name": "oxfmt" } },
+				{ "code_action": "source.fixAll.oxc" }
+			],
+			"prettier": { "allowed": false }
+		},
+		"JavaScript": {
+			"format_on_save": "on",
+			"formatter": [
+				{ "language_server": { "name": "oxfmt" } },
+				{ "code_action": "source.fixAll.oxc" }
+			],
+			"prettier": { "allowed": false }
+		},
+		"JSON": {
+			"format_on_save": "on",
+			"formatter": [{ "language_server": { "name": "oxfmt" } }],
+			"prettier": { "allowed": false }
+		},
+		"JSONC": {
+			"format_on_save": "on",
+			"formatter": [{ "language_server": { "name": "oxfmt" } }],
+			"prettier": { "allowed": false }
+		}
+	},
+	"file_scan_exclusions": ["**/routeTree.gen.ts", "dist", ".output", ".vinxi", ".vite-plus"]
+}

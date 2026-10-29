@@ -16,7 +16,7 @@ type ConfirmDialogProps = {
 	confirmLabel?: string;
 	className?: string;
 	isLoading?: boolean;
-	onConfirm: () => void;
+	onConfirm: () => void | Promise<void>;
 };
 
 export function ConfirmDialog({
@@ -29,15 +29,21 @@ export function ConfirmDialog({
 	isLoading = false,
 	onConfirm,
 }: ConfirmDialogProps) {
+	const handleOpenChange = (state: boolean) => {
+		// Prevent closing the dialog while an async confirmation is in flight.
+		if (!state && isLoading) return;
+		onOpenChange(state);
+	};
+
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogContent className={className}>
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 					{description && <DialogDescription>{description}</DialogDescription>}
 				</DialogHeader>
 				<DialogFooter>
-					<Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+					<Button variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
 						Cancel
 					</Button>
 					<Button variant="destructive" disabled={isLoading} onClick={onConfirm}>

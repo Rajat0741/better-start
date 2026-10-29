@@ -3,6 +3,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
+import { Toaster } from "@/components/ui/toast";
 import { Providers } from "@/providers";
 
 import TanStackQueryDevtools from "../lib/tanstack-query/devtools";
@@ -44,7 +45,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<Providers>{children}</Providers>
+				<Providers>
+					<Toaster />
+					{children}
+				</Providers>
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

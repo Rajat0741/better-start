@@ -1,5 +1,8 @@
 import { createContext, useContext, useRef, useState } from "react";
 
+import { toast } from "@/components/ui/toast";
+import { AppError } from "@/utils/app-error";
+
 import { ConfirmDialog } from "../components/custom/confirm-dialog";
 
 type ConfirmOptions = {
@@ -42,18 +45,24 @@ export function ConfirmDialogProvider({ children }: { children: React.ReactNode 
 	};
 
 	const handleConfirm = async () => {
-		if (!onConfirmRef.current) return;
+		const onConfirm = onConfirmRef.current;
+		if (!onConfirm) return;
+
 		setDialogState((prev) => ({ ...prev, isLoading: true }));
 		try {
-			await onConfirmRef.current();
-		} finally {
+			await onConfirm();
 			onConfirmRef.current = null;
 			setDialogState(DEFAULT_STATE);
+		} catch (error) {
+			const message =
+				error instanceof AppError ? error.message : "Something went wrong. Please try again.";
+			toast.add({ title: message, type: "error" });
+			setDialogState((prev) => ({ ...prev, isLoading: false }));
 		}
 	};
 
 	const handleOpenChange = (isOpen: boolean) => {
-		if (!isOpen) {
+		if (!isOpen && !dialogState.isLoading) {
 			onConfirmRef.current = null;
 			setDialogState(DEFAULT_STATE);
 		}
@@ -76,6 +85,7 @@ export function ConfirmDialogProvider({ children }: { children: React.ReactNode 
 	);
 }
 
+/** Use isLoading to show a loading state for async operations */
 export function useConfirm() {
 	const ctx = useContext(ConfirmContext);
 	if (!ctx) {
